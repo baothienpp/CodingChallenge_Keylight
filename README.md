@@ -1,4 +1,4 @@
-# CodingChallenge_Keylight
+# Example of fetching trending github repository using GITAPIv3
 
 The API will fetch a list of github repositories in the last 7 days and sum all the stars in the list. It has following end points:
 ```
