@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import datetime
 import json
 import requests
@@ -10,31 +10,9 @@ link = 'https://api.github.com/search/repositories?q=created:%date%star&sort=sta
 
 @app.route("/", methods=['GET'])
 def get_total():
-    stars, total = get_stars_watcher()
-    return "Found: %d Repositories. Total of : %d stars " % (total, stars)
-
-
-@app.route("/size/<int:max_size>", methods=['GET'])
-def filter_max_size(max_size):
-    stars, total = get_stars_watcher(size=max_size)
-    return "Found: %d Repositories. Total of : %d stars " % (total, stars)
-
-
-@app.route("/star/<int:star>", methods=['GET'])
-def filter_star(star):
-    stars, total = get_stars_watcher(star=star)
-    return "Found: %d Repositories. Total of : %d stars " % (total, stars)
-
-
-@app.route("/size/<int:max_size>/star/<int:star>", methods=['GET'])
-def filter_multi_parameter(max_size, star):
-    stars, total = get_stars_watcher(size=max_size, star=star)
-    return "Found: %d Repositories. Total of : %d stars " % (total, stars)
-
-
-@app.route("/star/<int:star>/size/<int:max_size>", methods=['GET'])
-def filter_multi_parameter_switch(max_size, star):
-    stars, total = get_stars_watcher(size=max_size, star=star)
+    stars = request.args.get('stars')
+    max_size = request.args.get('max_size')
+    stars, total = get_stars_watcher(star=stars, size=max_size)
     return "Found: %d Repositories. Total of : %d stars " % (total, stars)
 
 
@@ -53,7 +31,7 @@ def get_stars_watcher(size=None, star=None):
     output = json.loads(data)
     item_list = output.get('items')
     if size:
-        item_list = item_list[:size]
+        item_list = item_list[:int(size)]
 
     stars = 0
     total = len(item_list)
@@ -61,6 +39,7 @@ def get_stars_watcher(size=None, star=None):
         stars += item.get('stargazers_count')
 
     return stars, total
+
 
 if __name__ == '__main__':
     app.run(debug=True)
